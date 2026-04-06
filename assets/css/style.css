@@ -630,6 +630,7 @@ footer .brand-logo {
     max-height: 50px;
     opacity: 0.8;
     transition: opacity 0.3s;
+    filter: drop-shadow(0 0 10px #00FF00);
 }
 
 footer .brand-logo:hover {
