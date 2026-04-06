@@ -159,7 +159,7 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 50px; /* offset for navbar roughly */
     background-color: var(--bg-deep-black);
     background-image: linear-gradient(rgba(5, 5, 5, 0.7), rgba(5, 5, 5, 0.95)), url('../images/71A91447-26F5-45BE-9040-0FFAC0E83D28.png');
-    background-position: center 30%;
+    background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -707,6 +707,11 @@ footer .brand-logo:hover {
         font-size: 1.4rem;
         display: block;
         padding: 15px; /* Minimum 44px tap target */
+    }
+
+    .hero {
+        background-attachment: scroll; /* Prevent background from disappearing on mobile */
+        background-position: center;
     }
 
     .hero-logo-main {
