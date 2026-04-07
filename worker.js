@@ -1,0 +1,354 @@
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+
+    // Frontend: Main Entry
+    if (url.pathname === '/') {
+        return new Response(HTML_CONTENT, { headers: { 'Content-Type': 'text/html' } });
+    }
+
+    // API: Create Payment
+    if (url.pathname === '/api/create-payment' && request.method === 'POST') {
+        try {
+            const body = await request.json();
+            const res = await fetch(`https://api.convesiopay.com/v1/payments?integration=${env.CONVESIOPAY_CONNECTED_INTEGRATION_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + env.CONVESIOPAY_API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: Math.round(body.amount * 100),
+                    currency: 'USD',
+                    customer: body.customer
+                })
+            });
+            const data = await res.json();
+            return new Response(JSON.stringify(data), { 
+                status: res.status,
+                headers: { 'Content-Type': 'application/json' } 
+            });
+        } catch (e) {
+            return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+        }
+    }
+
+    // API: Webhook (WooCommerce Sync)
+    if (url.pathname === '/order-endpoint' && request.method === 'POST') {
+        const payload = await request.text();
+        const data = JSON.parse(payload);
+        
+        // Simple status check (In production, use signature verification)
+        if (data.status === 'processed' || data.status === 'completed') {
+            await fetch(env.WOO_STORE_URL + '/wp-json/wc/v3/orders', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Basic ' + btoa(env.WOO_CONSUMER_KEY + ':' + env.WOO_CONSUMER_SECRET),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    payment_method: 'convesiopay',
+                    set_paid: true,
+                    status: 'completed',
+                    billing: { first_name: data.customer?.firstName, email: data.customer?.email },
+                    line_items: data.items?.map(i => ({ product_id: i.productId, quantity: i.quantity }))
+                })
+            });
+        }
+        return new Response('OK');
+    }
+
+    return new Response('Not Found', { status: 404 });
+  }
+};
+
+const HTML_CONTENT = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEADWEIGHT | Industrial Strength Gym Apparel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <script src="https://js.convesiopay.com/v1/"></script>
+    <style>
+        :root {
+            --bg-black: #050505;
+            --neon: #39FF14;
+            --text: #ffffff;
+            --font-impact: 'Anton', sans-serif;
+            --font-base: 'Inter', sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg-black); color: var(--text); font-family: var(--font-base); overflow-x: hidden; line-height: 1.6; }
+        
+        header { 
+            padding: 1.5rem 3rem; 
+            border-bottom: 2px solid var(--neon); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(0,0,0,0.9); 
+            position: fixed; 
+            width: 100%; 
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .logo-text { font-family: var(--font-impact); font-size: 2rem; letter-spacing: 2px; }
+        .cart-trigger { font-family: var(--font-impact); color: var(--neon); cursor: pointer; text-decoration: none; }
+        
+        .hero { 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('https://deadweightdaddy.com/assets/images/hero-bg.jpg') center/cover;
+        }
+        .hero-title { font-family: var(--font-impact); font-size: clamp(4rem, 15vw, 12rem); line-height: 0.85; text-shadow: 5px 5px 0px var(--neon); margin-bottom: 2rem; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; padding: 10rem 2rem; max-width: 1200px; margin: 0 auto; }
+        .card { background: #111; padding: 2.5rem; border: 1px solid #222; transition: transform 0.3s, border-color 0.3s; position: relative; }
+        .card:hover { transform: translateY(-10px); border-color: var(--neon); box-shadow: 0 0 20px rgba(57, 255, 20, 0.2); }
+        .card h3 { font-family: var(--font-impact); font-size: 1.8rem; margin-bottom: 1rem; }
+        .price { color: var(--neon); font-size: 2rem; font-weight: 900; margin-bottom: 2rem; }
+        .btn-add { width: 100%; padding: 1.2rem; background: none; border: 2px solid #333; color: white; font-family: var(--font-impact); font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        .btn-add:hover { background: var(--neon); color: black; border-color: var(--neon); transform: scale(1.02); }
+
+        .size-select-wrapper { margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+        .size-select-wrapper label { font-family: var(--font-impact); color: #666; font-size: 0.9rem; }
+        .size-select { 
+            flex: 1; background: #000; border: 1px solid #333; color: white; padding: 0.8rem; 
+            font-family: var(--font-base); font-weight: 700; cursor: pointer; transition: 0.3s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2339FF14' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+        }
+        .size-select:hover { border-color: var(--neon); }
+        .size-select option { background: #000; }
+
+        #cart-sidebar { 
+            position: fixed; right: -450px; top: 0; width: 450px; height: 100vh; 
+            background: #080808; border-left: 2px solid var(--neon); z-index: 2000; 
+            padding: 3rem; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            display: flex; flex-direction: column; 
+        }
+        #cart-sidebar.active { right: 0; }
+        .sidebar-title { font-family: var(--font-impact); font-size: 3rem; border-bottom: 1px solid #333; padding-bottom: 1rem; }
+        #cart-list { flex: 1; margin: 2rem 0; overflow-y: auto; }
+        .total-row { font-size: 2.5rem; font-family: var(--font-impact); color: var(--neon); margin-bottom: 2rem; }
+        .btn-checkout { width: 100%; padding: 1.5rem; background: var(--neon); border: none; font-family: var(--font-impact); font-size: 2rem; cursor: pointer; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; align-items: center; justify-content: center; }
+        .modal { background: #0A0A0A; border: 2px solid var(--neon); padding: 4rem; width: 95%; max-width: 550px; position: relative; }
+        .billing-form { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
+        .billing-form input { background: #111; border: 1px solid #333; padding: 1.2rem; color: white; font-size: 1rem; }
+        .billing-form input:focus { border-color: var(--neon); outline: none; }
+        #close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
+
+        @media (max-width: 768px) { #cart-sidebar { width: 100%; right: -100%; } .hero-title { font-size: 6rem; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-text">DEADWEIGHT</div>
+        <div class="cart-trigger" id="open-cart">CART (<span class="cart-count">0</span>)</div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div>
+                <h1 class="hero-title">SURVIVE<br/>THE GRIND</h1>
+                <a href="#shop" class="btn-add" style="display:inline-block; width:auto; padding: 1rem 3rem;">EQUIP NOW</a>
+            </div>
+        </section>
+
+        <section id="shop" class="grid">
+            <!-- Product 1: NEON GATOR TEE -->
+            <div class="card">
+                <img src="https://store.deadweightdaddy.com/wp-content/uploads/2026/04/DW-NEON-GATOR.png" alt="Deadweight Apparel Neon Gator graphic tee" style="width:100%; margin-bottom:1.5rem;">
+                <h3>NEON GATOR TEE</h3>
+                <p class="product-desc" style="font-size:0.8rem; color:#666; margin-bottom:1rem;">Dripping fangs. X'd out eyes. Pure swamp aggression.</p>
+                <p class="price">$45.00</p>
+                
+                <div class="size-select-wrapper">
+                    <label>SIZE</label>
+                    <select class="size-select" onchange="updatePrice(this, 45)">
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="2XL">2XL (+$5)</option>
+                        <option value="3XL">3XL (+$10)</option>
+                    </select>
+                </div>
+                
+                <button class="btn-add add-to-cart" data-id="GATOR01" data-name="NEON GATOR TEE" data-price="45.00" data-size="S">ADD TO ARSENAL</button>
+            </div>
+
+            <!-- Product 2: NEON PANTHER TEE -->
+            <div class="card">
+                <img src="https://store.deadweightdaddy.com/wp-content/uploads/2026/04/DW-NEON-PANTHER-1.png" alt="Deadweight Apparel Neon Panther graphic tee" style="width:100%; margin-bottom:1.5rem;">
+                <h3>NEON PANTHER TEE</h3>
+                <p class="product-desc" style="font-size:0.8rem; color:#666; margin-bottom:1rem;">X'd out eyes. Fangs bared. A dumbbell in its grip.</p>
+                <p class="price">$45.00</p>
+
+                <div class="size-select-wrapper">
+                    <label>SIZE</label>
+                    <select class="size-select" onchange="updatePrice(this, 45)">
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="2XL">2XL (+$5)</option>
+                        <option value="3XL">3XL (+$10)</option>
+                    </select>
+                </div>
+
+                <button class="btn-add add-to-cart" data-id="PANTHER01" data-name="NEON PANTHER TEE" data-price="45.00" data-size="S">ADD TO ARSENAL</button>
+            </div>
+
+            <!-- Product 3: LIFT HEAVY SHIT TEE -->
+            <div class="card">
+                <img src="https://store.deadweightdaddy.com/wp-content/uploads/2026/04/DW-45lbs.png" alt="Deadweight Apparel Lift Heavy Shit graphic tee" style="width:100%; margin-bottom:1.5rem;">
+                <h3>LIFT HEAVY SHIT TEE</h3>
+                <p class="product-desc" style="font-size:0.8rem; color:#666; margin-bottom:1rem;">The only weight that matters. Wear the standard.</p>
+                <p class="price">$45.00</p>
+
+                <div class="size-select-wrapper">
+                    <label>SIZE</label>
+                    <select class="size-select" onchange="updatePrice(this, 45)">
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="2XL">2XL (+$5)</option>
+                        <option value="3XL">3XL (+$10)</option>
+                    </select>
+                </div>
+
+                <button class="btn-add add-to-cart" data-id="PLATE01" data-name="LIFT HEAVY SHIT TEE" data-price="45.00" data-size="S">ADD TO ARSENAL</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="cart-sidebar">
+        <h2 class="sidebar-title">ARSENAL</h2>
+        <div id="cart-list"></div>
+        <div class="total-row">TOTAL: <span id="cart-total">$0.00</span></div>
+        <button class="btn-checkout" id="init-checkout">TRANSACT</button>
+        <button style="background:none; border:none; color:#555; margin-top:1rem; cursor:pointer;" id="close-cart">CLOSE</button>
+    </div>
+
+    <div class="overlay" id="checkout-overlay">
+        <div class="modal">
+            <button id="close-modal">&times;</button>
+            <h2 style="font-family:var(--font-impact); font-size:2.5rem;">BILLING INFO</h2>
+            <div id="step-1">
+                <form id="billing-form" class="billing-form">
+                    <input type="text" name="firstName" placeholder="FIRST NAME" required>
+                    <input type="email" name="email" placeholder="EMAIL ADDRESS" required>
+                    <button type="submit" class="btn-checkout">CONNECT TO GATEWAY</button>
+                </form>
+            </div>
+            <div id="step-2" style="display:none; margin-top:2rem;">
+                <div id="cp-mount"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cart = {
+            items: JSON.parse(localStorage.getItem('dw_cart')) || [],
+            save() { localStorage.setItem('dw_cart', JSON.stringify(this.items)); this.render(); },
+            add(item) {
+                const existing = this.items.find(i => i.id === item.id && i.size === item.size);
+                if(existing) existing.qty++; else this.items.push({...item, qty: 1});
+                this.save();
+                this.open();
+            },
+            render() {
+                const count = this.items.reduce((a, b) => a + b.qty, 0);
+                document.querySelectorAll('.cart-count').forEach(c => c.textContent = count);
+                document.getElementById('cart-list').innerHTML = this.items.map(i => \`
+                    <div style="display:flex; justify-content:space-between; padding:1rem 0; border-bottom:1px solid #222;">
+                        <div>
+                            <strong>\${i.name}</strong><br/>
+                            <span style="font-size:0.8rem; color:#666;">SIZE: \${i.size}</span><br/>
+                            $\${i.price.toFixed(2)} x \${i.qty}
+                        </div>
+                        <div style="font-weight:900;">$\${(i.price * i.qty).toFixed(2)}</div>
+                    </div>
+                \`).join('');
+                document.getElementById('cart-total').textContent = '$' + this.items.reduce((a,b) => a + (b.price*b.qty), 0).toFixed(2);
+            },
+            open() { document.getElementById('cart-sidebar').classList.add('active'); },
+            close() { document.getElementById('cart-sidebar').classList.remove('active'); }
+        };
+
+        function updatePrice(el, base) {
+            const size = el.value;
+            let price = base;
+            if(size === '2XL') price += 5;
+            if(size === '3XL') price += 10;
+            
+            const card = el.closest('.card');
+            card.querySelector('.price').textContent = '$' + price.toFixed(2);
+            const btn = card.querySelector('.add-to-cart');
+            btn.dataset.price = price.toFixed(2);
+            btn.dataset.size = size;
+        }
+
+        document.querySelectorAll('.add-to-cart').forEach(btn => btn.onclick = () => {
+            cart.add({ 
+                id: btn.dataset.id, 
+                name: btn.dataset.name, 
+                price: parseFloat(btn.dataset.price),
+                size: btn.dataset.size || 'S'
+            });
+        });
+        document.getElementById('open-cart').onclick = () => cart.open();
+        document.getElementById('close-cart').onclick = () => cart.close();
+        document.getElementById('close-modal').onclick = () => document.getElementById('checkout-overlay').style.display = 'none';
+
+        document.getElementById('init-checkout').onclick = () => {
+            if(cart.items.length === 0) return alert('Arsenal empty.');
+            document.getElementById('checkout-overlay').style.display = 'flex';
+            cart.close();
+        };
+
+        document.getElementById('billing-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const customer = { firstName: e.target.firstName.value, email: e.target.email.value };
+            const amount = cart.items.reduce((a,b) => a + (b.price*b.qty), 0);
+            
+            e.target.innerText = 'CONNECTING...';
+            e.target.disabled = true;
+
+            const res = await fetch('/api/create-payment', {
+                method: 'POST',
+                body: JSON.stringify({ amount, customer })
+            });
+            const data = await res.json();
+            
+            const cp = new ConvesioPay('pub.v2.SMJVRN9GMVCFMZ65.aHR0cHM6Ly9kZWFkd2VpZ2h0ZGFkZHkuY29t.VKG5_AsQIFV9Z5PYPH2H-pwobuvGzJOvTKec9qLt2p0');
+            const checkout = cp.create('checkout', { paymentId: data.id, appearance: { theme: 'dark' } });
+            
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block';
+            checkout.mount('#cp-mount');
+
+            checkout.on('payment_success', () => {
+                alert('TRANSACTION SUCCESSFUL. ARSENAL RESTOCKED.');
+                cart.items = []; cart.save(); window.location.reload();
+            });
+        };
+
+        cart.render();
+    </script>
+</body>
+</html>
+`;

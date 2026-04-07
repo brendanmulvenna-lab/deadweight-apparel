@@ -1,0 +1,28 @@
+{
+  "name": "deadweight-apparel",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brendanmulvenna-lab/deadweight-apparel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brendanmulvenna-lab/deadweight-apparel/issues"
+  },
+  "homepage": "https://github.com/brendanmulvenna-lab/deadweight-apparel#readme",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.14.0",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "itty-router": "^5.0.23"
+  }
+}

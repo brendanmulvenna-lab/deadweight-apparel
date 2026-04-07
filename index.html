@@ -21,6 +21,9 @@
     <meta name="twitter:description" content="Gear built to survive your heaviest sets. Limited drops. Once it's gone, it's gone.">
     <meta name="twitter:image" content="https://deadweightdaddy.com/assets/images/og-share.png">
 
+    <!-- ConvesioPay Script -->
+    <script src="https://js.convesiopay.com/v1/"></script>
+
     <!-- Google Fonts: Anton for massive headings, Inter for body text -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,6 +44,12 @@
             <a href="#shop" class="nav-link">Shop</a>
             <a href="#community" class="nav-link">Community</a>
             <a href="#signup" class="nav-link">Join the Crew</a>
+            
+            <!-- Cart Trigger -->
+            <div class="cart-trigger" id="open-cart-btn">
+                <span class="nav-link">CART</span>
+                <span class="cart-count">0</span>
+            </div>
         </nav>
     </header>
 
@@ -87,49 +96,120 @@
                 <h2 class="section-title">NEW DROPS</h2>
             </div>
             <div class="grid">
-                <!-- Drop 1 -->
+                <!-- Drop 1: NEON GATOR TEE -->
+                <!-- Drop 1: NEON GATOR TEE -->
                 <div class="card">
                     <div class="card-img-container">
-                        <img src="assets/images/gator-tee.png" alt="Gator Shield Tee" class="product-img" onerror="this.style.display='none'; this.parentElement.classList.add('fallback-img')">
+                        <img src="https://store.deadweightdaddy.com/wp-content/uploads/2026/04/DW-NEON-GATOR.png" alt="Deadweight Apparel Neon Gator graphic tee" class="product-img" onerror="this.style.display='none'; this.parentElement.classList.add('fallback-img')">
                     </div>
                     <div class="card-info">
                         <div>
-                            <h3>GATOR SHIELD TEE</h3>
-                            <p class="product-desc" style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">Built to survive chalk, sweat, and your heaviest deadlifts.</p>
+                            <h3>NEON GATOR TEE</h3>
+                            <p class="product-desc" style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">Dripping fangs. X'd out eyes. Pure swamp aggression.</p>
                         </div>
-                        <p class="price">$40.00</p>
+                        <p class="price">$45.00</p>
                     </div>
-                    <a href="#" class="btn-secondary" onclick="event.preventDefault();">ADD TO CART</a>
+                    
+                    <div class="size-selector-wrapper">
+                        <label for="size-GATOR01">SIZE:</label>
+                        <select id="size-GATOR01" class="size-select" onchange="updatePrice(this)">
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="2XL">2XL (+$5)</option>
+                            <option value="3XL">3XL (+$10)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="add-to-cart btn-secondary" data-id="GATOR01" data-name="NEON GATOR TEE" data-price="45.00" data-size="S">ADD TO CART</button>
                 </div>
-                <!-- Drop 2 -->
+
+                <!-- Drop 2: NEON PANTHER TEE -->
                 <div class="card">
                     <div class="card-img-container">
-                        <img src="assets/images/panther-tee.png" alt="Panther XX Tee" class="product-img" onerror="this.style.display='none'; this.parentElement.classList.add('fallback-img-dark')">
+                        <img src="https://store.deadweightdaddy.com/wp-content/uploads/2026/04/DW-NEON-PANTHER-1.png" alt="Deadweight Apparel Neon Panther graphic tee" class="product-img" onerror="this.style.display='none'; this.parentElement.classList.add('fallback-img-dark')">
                     </div>
                     <div class="card-info">
                         <div>
-                            <h3>PANTHER XX TEE</h3>
-                            <p class="product-desc" style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">Rep the syndicate. Dead eyes. Full send.</p>
+                            <h3>NEON PANTHER TEE</h3>
+                            <p class="product-desc" style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">X'd out eyes. Fangs bared. A dumbbell in its grip.</p>
                         </div>
-                        <p class="price">$40.00</p>
+                        <p class="price">$45.00</p>
                     </div>
-                    <a href="#" class="btn-secondary" onclick="event.preventDefault();">ADD TO CART</a>
+
+                    <div class="size-selector-wrapper">
+                        <label for="size-PANTHER01">SIZE:</label>
+                        <select id="size-PANTHER01" class="size-select" onchange="updatePrice(this)">
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="2XL">2XL (+$5)</option>
+                            <option value="3XL">3XL (+$10)</option>
+                        </select>
+                    </div>
+
+                    <button class="add-to-cart btn-secondary" data-id="PANTHER01" data-name="NEON PANTHER TEE" data-price="45.00" data-size="S">ADD TO CART</button>
                 </div>
-                <!-- Drop 3 -->
+
+                <!-- Drop 3: LIFT HEAVY SHIT TEE -->
                 <div class="card">
                     <div class="card-img-container">
-                        <img src="assets/images/plate-tee.png" alt="45lb Plate Tee" class="product-img" onerror="this.style.display='none'; this.parentElement.classList.add('fallback-img')">
+                        <img src="https://store.deadweightdaddy.com/wp-content/uploads/2026/04/DW-45lbs.png" alt="Deadweight Apparel Lift Heavy Shit graphic tee" class="product-img" onerror="this.style.display='none'; this.parentElement.classList.add('fallback-img')">
                     </div>
                     <div class="card-info">
                         <div>
-                            <h3>45LB PLATE TEE</h3>
+                            <h3>LIFT HEAVY SHIT TEE</h3>
                             <p class="product-desc" style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">The only weight that matters. Wear the standard.</p>
                         </div>
-                        <p class="price">$40.00</p>
+                        <p class="price">$45.00</p>
                     </div>
-                    <a href="#" class="btn-secondary" onclick="event.preventDefault();">ADD TO CART</a>
+
+                    <div class="size-selector-wrapper">
+                        <label for="size-PLATE01">SIZE:</label>
+                        <select id="size-PLATE01" class="size-select" onchange="updatePrice(this)">
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="2XL">2XL (+$5)</option>
+                            <option value="3XL">3XL (+$10)</option>
+                        </select>
+                    </div>
+
+                    <button class="add-to-cart btn-secondary" data-id="PLATE01" data-name="LIFT HEAVY SHIT TEE" data-price="45.00" data-size="S">ADD TO CART</button>
                 </div>
             </div>
+
+            <!-- Client-side Pricing Script -->
+            <script>
+                function updatePrice(selectElement) {
+                    const priceTable = {
+                        'S': 45.00,
+                        'M': 45.00,
+                        'L': 45.00,
+                        'XL': 45.00,
+                        '2XL': 50.00,
+                        '3XL': 55.00
+                    };
+
+                    const size = selectElement.value;
+                    const card = selectElement.closest('.card');
+                    const priceDisplay = card.querySelector('.price');
+                    const addToCartBtn = card.querySelector('.add-to-cart');
+                    
+                    const newPrice = priceTable[size];
+                    
+                    // Update visible price
+                    priceDisplay.textContent = `$${newPrice.toFixed(2)}`;
+                    
+                    // Update button data attributes
+                    addToCartBtn.dataset.price = newPrice.toFixed(2);
+                    addToCartBtn.dataset.size = size;
+                }
+            </script>
+
             <div class="section-divider-container-bottom"><div class="section-divider"></div></div>
         </section>
 
@@ -164,24 +244,59 @@
 
     </main>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-left">
-                <img src="assets/deadweight-logo-transparent.png" alt="Deadweight Apparel" class="brand-logo">
+    </footer>
+
+    <!-- CART SIDEBAR -->
+    <div id="cart-overlay"></div>
+    <div id="cart-sidebar">
+        <div class="sidebar-header">
+            <h2>ARSENAL</h2>
+            <button id="close-cart">X</button>
+        </div>
+        <div id="cart-items-list">
+            <!-- Items populated by JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="total-row">
+                <span>TOTAL:</span>
+                <span id="cart-total-price">$0.00</span>
             </div>
-            <div class="social-links footer-center">
-                <a href="#">INSTAGRAM</a>
-                <a href="#">TIKTOK</a>
-                <a href="#">YOUTUBE</a>
+            <button class="btn-primary" id="start-checkout-btn" style="width:100%">CHECKOUT</button>
+        </div>
+    </div>
+
+    <!-- CHECKOUT OVERLAY -->
+    <div id="checkout-overlay">
+        <div class="checkout-modal">
+            <button id="close-checkout" style="position:absolute; top:20px; right:20px;">X</button>
+            <h2 class="checkout-title">ESTABLISH TRANSACTION</h2>
+            
+            <!-- Step 1: Billing -->
+            <div id="checkout-step-1">
+                <form id="billing-form" class="billing-form">
+                    <input type="text" name="firstName" placeholder="FIRST NAME" required>
+                    <input type="text" name="lastName" placeholder="LAST NAME" required>
+                    <input type="email" name="email" placeholder="EMAIL ADDRESS" required>
+                    <button type="submit" class="btn-primary" id="next-to-payment">PROCEED TO PAYMENT</button>
+                </form>
             </div>
-            <div class="legal-links footer-right">
-                <a href="#">TERMS</a>
-                <a href="#">PRIVACY</a>
+
+            <!-- Loading State -->
+            <div id="checkout-loading" style="display:none">
+                <div class="loader"></div>
+                <p>CONTACTING CONVESIOPAY INTERFACE...</p>
+            </div>
+
+            <!-- Step 2: ConvesioPay -->
+            <div id="checkout-step-2" style="display:none">
+                <div id="convesiopay-checkout-mount"></div>
             </div>
         </div>
-        <p class="copyright">&copy; 2026 DEADWEIGHT APPAREL. ALL RIGHTS RESERVED.</p>
-    </footer>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/checkout.js"></script>
 
     <!-- Mobile Menu Script -->
     <script>
