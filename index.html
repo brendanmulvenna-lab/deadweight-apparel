@@ -21,8 +21,7 @@
     <meta name="twitter:description" content="Gear built to survive your heaviest sets. Limited drops. Once it's gone, it's gone.">
     <meta name="twitter:image" content="https://deadweightdaddy.com/assets/images/og-share.png">
 
-    <!-- ConvesioPay Script -->
-    <script src="https://js.convesiopay.com/v1/"></script>
+
 
     <!-- Google Fonts: Anton for massive headings, Inter for body text -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,11 +44,7 @@
             <a href="#community" class="nav-link">Community</a>
             <a href="#signup" class="nav-link">Join the Crew</a>
             
-            <!-- Cart Trigger -->
-            <div class="cart-trigger" id="open-cart-btn">
-                <span class="nav-link">CART</span>
-                <span class="cart-count">0</span>
-            </div>
+
         </nav>
     </header>
 
@@ -110,19 +105,7 @@
                         <p class="price">$45.00</p>
                     </div>
                     
-                    <div class="size-selector-wrapper">
-                        <label for="size-GATOR01">SIZE:</label>
-                        <select id="size-GATOR01" class="size-select" onchange="updatePrice(this)">
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                            <option value="XL">XL</option>
-                            <option value="2XL">2XL (+$5)</option>
-                            <option value="3XL">3XL (+$10)</option>
-                        </select>
-                    </div>
-                    
-                    <button class="add-to-cart btn-secondary" data-id="GATOR01" data-name="NEON GATOR TEE" data-price="45.00" data-size="S">ADD TO CART</button>
+                    <a href="https://store.deadweightdaddy.com/product/dw-neon-gator-tee/" class="add-to-cart btn-secondary">SHOP NOW</a>
                 </div>
 
                 <!-- Drop 2: NEON PANTHER TEE -->
@@ -138,19 +121,7 @@
                         <p class="price">$45.00</p>
                     </div>
 
-                    <div class="size-selector-wrapper">
-                        <label for="size-PANTHER01">SIZE:</label>
-                        <select id="size-PANTHER01" class="size-select" onchange="updatePrice(this)">
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                            <option value="XL">XL</option>
-                            <option value="2XL">2XL (+$5)</option>
-                            <option value="3XL">3XL (+$10)</option>
-                        </select>
-                    </div>
-
-                    <button class="add-to-cart btn-secondary" data-id="PANTHER01" data-name="NEON PANTHER TEE" data-price="45.00" data-size="S">ADD TO CART</button>
+                    <a href="https://store.deadweightdaddy.com/product/dw-neon-panther-tee/" class="add-to-cart btn-secondary">SHOP NOW</a>
                 </div>
 
                 <!-- Drop 3: LIFT HEAVY SHIT TEE -->
@@ -166,49 +137,11 @@
                         <p class="price">$45.00</p>
                     </div>
 
-                    <div class="size-selector-wrapper">
-                        <label for="size-PLATE01">SIZE:</label>
-                        <select id="size-PLATE01" class="size-select" onchange="updatePrice(this)">
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                            <option value="XL">XL</option>
-                            <option value="2XL">2XL (+$5)</option>
-                            <option value="3XL">3XL (+$10)</option>
-                        </select>
-                    </div>
-
-                    <button class="add-to-cart btn-secondary" data-id="PLATE01" data-name="LIFT HEAVY SHIT TEE" data-price="45.00" data-size="S">ADD TO CART</button>
+                    <a href="https://store.deadweightdaddy.com/product/dw-lift-heavy-shit-tee/" class="add-to-cart btn-secondary">SHOP NOW</a>
                 </div>
             </div>
 
-            <!-- Client-side Pricing Script -->
-            <script>
-                function updatePrice(selectElement) {
-                    const priceTable = {
-                        'S': 45.00,
-                        'M': 45.00,
-                        'L': 45.00,
-                        'XL': 45.00,
-                        '2XL': 50.00,
-                        '3XL': 55.00
-                    };
 
-                    const size = selectElement.value;
-                    const card = selectElement.closest('.card');
-                    const priceDisplay = card.querySelector('.price');
-                    const addToCartBtn = card.querySelector('.add-to-cart');
-                    
-                    const newPrice = priceTable[size];
-                    
-                    // Update visible price
-                    priceDisplay.textContent = `$${newPrice.toFixed(2)}`;
-                    
-                    // Update button data attributes
-                    addToCartBtn.dataset.price = newPrice.toFixed(2);
-                    addToCartBtn.dataset.size = size;
-                }
-            </script>
 
             <div class="section-divider-container-bottom"><div class="section-divider"></div></div>
         </section>
@@ -246,57 +179,11 @@
 
     </footer>
 
-    <!-- CART SIDEBAR -->
-    <div id="cart-overlay"></div>
-    <div id="cart-sidebar">
-        <div class="sidebar-header">
-            <h2>ARSENAL</h2>
-            <button id="close-cart">X</button>
-        </div>
-        <div id="cart-items-list">
-            <!-- Items populated by JS -->
-        </div>
-        <div class="cart-footer">
-            <div class="total-row">
-                <span>TOTAL:</span>
-                <span id="cart-total-price">$0.00</span>
-            </div>
-            <button class="btn-primary" id="start-checkout-btn" style="width:100%">CHECKOUT</button>
-        </div>
-    </div>
 
-    <!-- CHECKOUT OVERLAY -->
-    <div id="checkout-overlay">
-        <div class="checkout-modal">
-            <button id="close-checkout" style="position:absolute; top:20px; right:20px;">X</button>
-            <h2 class="checkout-title">ESTABLISH TRANSACTION</h2>
-            
-            <!-- Step 1: Billing -->
-            <div id="checkout-step-1">
-                <form id="billing-form" class="billing-form">
-                    <input type="text" name="firstName" placeholder="FIRST NAME" required>
-                    <input type="text" name="lastName" placeholder="LAST NAME" required>
-                    <input type="email" name="email" placeholder="EMAIL ADDRESS" required>
-                    <button type="submit" class="btn-primary" id="next-to-payment">PROCEED TO PAYMENT</button>
-                </form>
-            </div>
 
-            <!-- Loading State -->
-            <div id="checkout-loading" style="display:none">
-                <div class="loader"></div>
-                <p>CONTACTING CONVESIOPAY INTERFACE...</p>
-            </div>
 
-            <!-- Step 2: ConvesioPay -->
-            <div id="checkout-step-2" style="display:none">
-                <div id="convesiopay-checkout-mount"></div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Application Scripts -->
-    <script src="assets/js/cart.js"></script>
-    <script src="assets/js/checkout.js"></script>
+
 
     <!-- Mobile Menu Script -->
     <script>
